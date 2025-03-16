@@ -4,16 +4,19 @@ section .bss
     index resb 1
 
 section .data
-    input db "assembly %% %c %b %x llllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll", 0xA, 0
+    input db "assembly %% %c %b %x %s llllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll", 0xA, 0
     char dq 'f'
     decimal dq 20
     hexadecimal dq 0x5B2A
+    line db " Hello world! ", 0
 
 section .text
 
 global _start
 
 _start:
+    lea rsi, [line]
+    push rsi
     push qword [hexadecimal]
     push qword [decimal]
     push qword [char]
@@ -50,6 +53,8 @@ my_printf:
             je .print_octal
             cmp [rax], byte 'b'
             je .print_binary
+            cmp [rax], byte 's'
+            je .print_string
             cmp [rax], byte '%'
             je .print_default_char
             jmp .invalid_specifier
@@ -106,6 +111,14 @@ my_printf:
             inc rax
             inc rcx
             jmp .loop
+        .print_string:
+            push rax
+            mov rax, [rbx]
+            call print_string
+            pop rax
+            add rbx, 8
+            inc rax
+            jmp .loop
         .invalid_specifier:
             mov rcx, -1
 
@@ -123,13 +136,6 @@ print_char:
     cmp byte [index], BUFFER_SIZE - 1
     jb .skip
     call buffer_reset
-    mov byte [index], 0
-    push ax
-    mov rcx, BUFFER_SIZE
-    lea rdi, [buffer]
-    xor al, al
-    rep stosb
-    pop ax
     .skip:
 
     movzx rbx, byte [index]
@@ -279,6 +285,89 @@ print_binary:
         pop rax
         ret
 
+print_string:
+    push rax
+    push rcx
+    push rdx
+    push rsi
+    push rdi
+
+    push rax
+    call strlen
+    mov rdx, rax
+    pop rax
+    cmp rdx, BUFFER_SIZE
+    ja .output_line ; строка длиннее буфера
+
+    push rax
+    call strlen
+    movzx rcx, byte [index]
+    add rcx, rax
+    pop rax
+    cmp rcx, BUFFER_SIZE
+    jbe .copy_string_to_buffer ; есть свободное место в строке
+
+    ; нет свободного места в строке
+    call buffer_reset
+    .copy_string_to_buffer:
+    mov rsi, rax
+    lea rdi, [buffer]
+    call strcpy
+    jmp .close
+
+    .output_line:
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, rax
+    syscall
+
+    .close:
+    pop rdi
+    pop rsi
+    pop rdx
+    pop rcx
+    pop rax
+    ret
+
+
+strlen:
+    push rcx
+    push rdx
+
+    xor rcx, rcx
+    .find_length:
+        mov dl, [rax + rcx]
+        cmp dl, 0
+        je .done
+        inc rcx
+        jmp .find_length
+    .done:
+        mov rax, rcx
+        pop rdx
+        pop rcx
+        ret
+
+strcpy:
+    push rax
+    push rcx
+    push rdx
+
+    movzx rcx, byte [index]
+    xor rdx, rdx
+    .copy_loop:
+        mov al, [rsi + rdx]
+        mov [rdi + rcx], al
+        inc rcx
+        inc rdx
+        cmp al, 0
+        jne .copy_loop
+
+    mov [index], cl
+    pop rdx
+    pop rcx
+    pop rax
+    ret
+
 buffer_reset:
     push rax
     push rcx
@@ -291,6 +380,12 @@ buffer_reset:
     lea rsi, [buffer]
     mov rdx, BUFFER_SIZE
     syscall
+
+    mov rcx, BUFFER_SIZE
+    lea rdi, [buffer]
+    xor al, al
+    rep stosb
+    mov byte [index], 0
 
     pop rsi
     pop rdi
