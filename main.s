@@ -1,8 +1,10 @@
 section .bss
-    buffer resb 128
+    BUFFER_SIZE equ 128
+    buffer resb BUFFER_SIZE
+    index resb 1
 
 section .data
-    input db "assembly %% %c %b %x", 0xA, 0
+    input db "assembly %% %c %b %x llllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll", 0xA, 0
     char dq 'f'
     decimal dq 20
     hexadecimal dq 0x5B2A
@@ -26,6 +28,7 @@ _start:
 my_printf:
     mov rax, [rsp + 8]
     lea rbx, [rsp + 16]
+    mov byte [index], 0
 
     xor rcx, rcx
     .loop:
@@ -107,28 +110,49 @@ my_printf:
             mov rcx, -1
 
     .close:
+        call buffer_reset
         mov rax, rcx
         ret
 
 print_char:
     push rax
+    push rbx
     push rcx ;<<<<<<<<<<<<<<<<<<<<<<<<<<< due syscall
     push rdi
     push rsi
     push rdx
 
-    push rax
-    mov rsi, rsp
-    add rsp, 8
-    mov rax, 1
-    mov rdi, 1
-    mov rdx, 1
-    syscall
+    cmp byte [index], BUFFER_SIZE - 1
+    jb .skip
+
+    call buffer_reset
+    mov byte [index], 0
+    push ax
+    mov rcx, BUFFER_SIZE
+    lea rdi, [buffer]
+    xor al, al
+    rep stosb
+    pop ax
+
+    .skip:
+
+    movzx rbx, byte [index]
+    mov [buffer + rbx], al
+    inc byte [index]
+
+    ;push rax
+    ;mov rsi, rsp
+    ;add rsp, 8
+    ;mov rax, 1
+    ;mov rdi, 1
+    ;mov rdx, 1
+    ;syscall
 
     pop rdx
     pop rsi
     pop rdi
     pop rcx ;<<<<<<<<<<<<<<<<<<<<<<<<<<< due syscall
+    pop rbx
     pop rax
     ret
 
@@ -268,3 +292,23 @@ print_binary:
         pop rbx
         pop rax
         ret
+
+buffer_reset:
+    push rax
+    push rcx
+    push rdx
+    push rdi
+    push rsi
+
+    mov rax, 1
+    mov rdi, 1
+    lea rsi, [buffer]
+    mov rdx, BUFFER_SIZE
+    syscall
+
+    pop rsi
+    pop rdi
+    pop rdx
+    pop rcx
+    pop rax
+    ret
