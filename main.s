@@ -29,7 +29,7 @@ _start:
     lea rsi, [input]
     push rsi
     call my_printf
-    add rsp, 16
+    add rsp, 48
 
     mov rax, 60
     syscall
