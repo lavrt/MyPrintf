@@ -1,3 +1,9 @@
+;===================================
+; nasm -f elf64 -l main.lst main.s
+; ld -s -o main main.o
+; ./main
+;===================================
+
 section .bss
     BUFFER_SIZE equ 128
     buffer resb BUFFER_SIZE
