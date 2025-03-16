@@ -117,14 +117,11 @@ my_printf:
 print_char:
     push rax
     push rbx
-    push rcx ;<<<<<<<<<<<<<<<<<<<<<<<<<<< due syscall
+    push rcx
     push rdi
-    push rsi
-    push rdx
 
     cmp byte [index], BUFFER_SIZE - 1
     jb .skip
-
     call buffer_reset
     mov byte [index], 0
     push ax
@@ -133,25 +130,14 @@ print_char:
     xor al, al
     rep stosb
     pop ax
-
     .skip:
 
     movzx rbx, byte [index]
     mov [buffer + rbx], al
     inc byte [index]
 
-    ;push rax
-    ;mov rsi, rsp
-    ;add rsp, 8
-    ;mov rax, 1
-    ;mov rdi, 1
-    ;mov rdx, 1
-    ;syscall
-
-    pop rdx
-    pop rsi
     pop rdi
-    pop rcx ;<<<<<<<<<<<<<<<<<<<<<<<<<<< due syscall
+    pop rcx
     pop rbx
     pop rax
     ret
