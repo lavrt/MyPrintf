@@ -29,7 +29,7 @@ _start:
     lea rsi, [input]
     push rsi
     call my_printf
-    add rsp, 48
+    add rsp, 6 * 8
 
     mov rax, 60
     syscall
@@ -41,27 +41,28 @@ my_printf:
 
     xor rcx, rcx
     .loop:
-        cmp [rax], byte 0
+        movzx rdx, byte [rax]
+        cmp rdx, byte 0
         je .close
-        cmp [rax], byte '%'
+        cmp rdx, byte '%'
         je .specifier
         jmp .print_default_char
 
         .specifier:
             inc rax
-            cmp [rax], byte 'c'
+            cmp rdx, byte 'c'
             je .print_char
-            cmp [rax], byte 'd'
+            cmp rdx, byte 'd'
             je .print_decimal
-            cmp [rax], byte 'x'
+            cmp rdx, byte 'x'
             je .print_hexadecimal
-            cmp [rax], byte 'o'
+            cmp rdx, byte 'o'
             je .print_octal
-            cmp [rax], byte 'b'
+            cmp rdx, byte 'b'
             je .print_binary
-            cmp [rax], byte 's'
+            cmp rdx, byte 's'
             je .print_string
-            cmp [rax], byte '%'
+            cmp rdx, byte '%'
             je .print_default_char
             jmp .invalid_specifier
         .print_char:
@@ -75,7 +76,7 @@ my_printf:
             jmp .loop
         .print_default_char:
             push rax
-            mov rax, [rax]
+            mov rax, rdx
             call print_char
             pop rax
             inc rax
@@ -133,7 +134,7 @@ my_printf:
         mov rax, rcx
         ret
 
-print_char:
+print_char: ; // FIXME джамп а не функция <-----------------?????
     push rax
     push rbx
     push rcx
@@ -303,7 +304,7 @@ print_string:
     mov rdx, rax
     pop rax
     cmp rdx, BUFFER_SIZE
-    ja .output_line ; строка длиннее буфера
+    ja .output_line
 
     push rax
     call strlen
@@ -311,9 +312,8 @@ print_string:
     add rcx, rax
     pop rax
     cmp rcx, BUFFER_SIZE
-    jbe .copy_string_to_buffer ; есть свободное место в строке
+    jbe .copy_string_to_buffer
 
-    ; нет свободного места в строке
     call buffer_reset
     .copy_string_to_buffer:
     mov rsi, rax
