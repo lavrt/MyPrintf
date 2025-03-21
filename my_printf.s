@@ -9,38 +9,37 @@ section .bss
     buffer resb BUFFER_SIZE
     index resb 1
 
-section .data
-    input db "assembly %% %c %b %x %s llllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll", 0xA, 0
-    char dq 'f'
-    decimal dq 20
-    hexadecimal dq 0x5B2A
-    line db " Hello world! ", 0
-
 section .text
 
-global _start
-
-_start:
-    lea rsi, [line]
+global my_printf_t
+my_printf_t:
+    push r9
+    push r8
+    push rcx
+    push rdx
     push rsi
-    push qword [hexadecimal]
-    push qword [decimal]
-    push qword [char]
-    lea rsi, [input]
-    push rsi
-    call my_printf
-    add rsp, 6 * 8
+    push rdi
 
-    mov rax, 60
-    syscall
+    jmp my_printf
+    return:
+
+    add rsp, 8 * 6
+    ret
 
 my_printf:
-    mov rax, [rsp + 8]
-    lea rbx, [rsp + 16]
+    mov rax, [rsp]
+    lea rbx, [rsp + 8]
     mov byte [index], 0
 
     xor rcx, rcx
     .loop:
+        mov rdx, rsp
+        add rdx, 8 * 6
+        cmp rbx, rdx
+        jne .skip
+        add rbx, 8
+        .skip:
+
         movzx rdx, byte [rax]
         cmp rdx, byte 0
         je .close
@@ -50,6 +49,7 @@ my_printf:
 
         .specifier:
             inc rax
+            movzx rdx, byte [rax]
             cmp rdx, byte 'c'
             je .print_char
             cmp rdx, byte 'd'
@@ -132,9 +132,9 @@ my_printf:
     .close:
         call buffer_reset
         mov rax, rcx
-        ret
+        jmp return
 
-print_char: ; // FIXME джамп а не функция <-----------------?????
+print_char:
     push rax
     push rbx
     push rcx
