@@ -1,13 +1,31 @@
-;===================================
-; nasm -f elf64 -l main.lst main.s
-; ld -s -o main main.o
-; ./main
-;===================================
+;========================================================
+; nasm -f elf64 -l my_printf.lst my_printf.s
+; g++ -no-pie -o build -Wall -Wextra main.cpp my_printf.o
+; ./build
+;========================================================
 
 section .bss
     BUFFER_SIZE equ 128
     buffer resb BUFFER_SIZE
     index resb 1
+
+section .data 
+    chars db "0123456789ABCDEF"
+
+    jump_table:
+    ;_____________________________________________
+                    dq default_case         ; '%' 
+        times 60    dq invalid_specifier    ;
+                    dq case_binary          ; 'b'
+                    dq case_char            ; 'c'
+                    dq case_decimal         ; 'd'
+        times 10    dq invalid_specifier    ;
+                    dq case_octal           ; 'o'
+        times 3     dq invalid_specifier    ;
+                    dq case_string          ; 's'
+        times 4     dq invalid_specifier    ;
+                    dq case_hexadecimal     ; 'x'
+    ;_____________________________________________
 
 section .text
 
@@ -32,7 +50,7 @@ my_printf:
     mov byte [index], 0
 
     xor rcx, rcx
-    .loop:
+    main_loop:
         mov rdx, rsp
         add rdx, 8 * 6
         cmp rbx, rdx
@@ -42,30 +60,16 @@ my_printf:
 
         movzx rdx, byte [rax]
         cmp rdx, byte 0
-        je .close
+        je main_close
         cmp rdx, byte '%'
         je .specifier
-        jmp .print_default_char
+        jmp default_case
 
         .specifier:
             inc rax
             movzx rdx, byte [rax]
-            cmp rdx, byte 'c'
-            je .print_char
-            cmp rdx, byte 'd'
-            je .print_decimal
-            cmp rdx, byte 'x'
-            je .print_hexadecimal
-            cmp rdx, byte 'o'
-            je .print_octal
-            cmp rdx, byte 'b'
-            je .print_binary
-            cmp rdx, byte 's'
-            je .print_string
-            cmp rdx, byte '%'
-            je .print_default_char
-            jmp .invalid_specifier
-        .print_char:
+            jmp [jump_table + rdx * 8 - '%' * 8]
+        case_char:
             push rax
             mov rax, [rbx]
             call print_char
@@ -73,16 +77,16 @@ my_printf:
             add rbx, 8
             inc rax
             inc rcx
-            jmp .loop
-        .print_default_char:
+            jmp main_loop
+        default_case:
             push rax
             mov rax, rdx
             call print_char
             pop rax
             inc rax
             inc rcx
-            jmp .loop
-        .print_decimal:
+            jmp main_loop
+        case_decimal:
             push rax
             mov rax, [rbx]
             call print_decimal
@@ -90,8 +94,8 @@ my_printf:
             add rbx, 8
             inc rax
             inc rcx
-            jmp .loop
-        .print_hexadecimal:
+            jmp main_loop
+        case_hexadecimal:
             push rax
             mov rax, [rbx]
             call print_hexadecimal
@@ -99,8 +103,8 @@ my_printf:
             add rbx, 8
             inc rax
             inc rcx
-            jmp .loop
-        .print_octal:
+            jmp main_loop
+        case_octal:
             push rax
             mov rax, [rbx]
             call print_octal
@@ -108,8 +112,8 @@ my_printf:
             add rbx, 8
             inc rax
             inc rcx
-            jmp .loop
-        .print_binary:
+            jmp main_loop
+        case_binary:
             push rax
             mov rax, [rbx]
             call print_binary
@@ -117,19 +121,19 @@ my_printf:
             add rbx, 8
             inc rax
             inc rcx
-            jmp .loop
-        .print_string:
+            jmp main_loop
+        case_string:
             push rax
             mov rax, [rbx]
             call print_string
             pop rax
             add rbx, 8
             inc rax
-            jmp .loop
-        .invalid_specifier:
+            jmp main_loop
+        invalid_specifier:
             mov rcx, -1
 
-    .close:
+    main_close:
         call buffer_reset
         mov rax, rcx
         jmp return
@@ -205,11 +209,7 @@ print_hexadecimal:
     .get_digits:
         mov rdx, rax
         and rdx, 0xF
-        add rdx, '0'
-        cmp rdx, '9'
-        jbe .skip
-        add rdx, 7
-        .skip:
+        mov rdx, [chars + rdx]
         push rdx
         inc rcx
         shr rax, 4
