@@ -9,6 +9,10 @@ This is a learning project that has created an analog of the printf function in 
 ## Project launch
 ```
 nasm -f elf64 -l my_printf.lst my_printf.s
+```
+```
 g++ -no-pie -o build -Wall -Wextra main.cpp my_printf.o
+```
+```
 ./build
 ```
