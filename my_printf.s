@@ -72,6 +72,7 @@ my_printf:
         case_char:
             push rax
             mov rax, [rbx]
+            movsx rax, eax
             call print_char
             pop rax
             add rbx, 8
@@ -81,6 +82,7 @@ my_printf:
         default_case:
             push rax
             mov rax, rdx
+            movsx rax, eax
             call print_char
             pop rax
             inc rax
@@ -89,6 +91,7 @@ my_printf:
         case_decimal:
             push rax
             mov rax, [rbx]
+            movsx rax, eax
             call print_decimal
             pop rax
             add rbx, 8
@@ -98,6 +101,7 @@ my_printf:
         case_hexadecimal:
             push rax
             mov rax, [rbx]
+            movsx rax, eax
             call print_hexadecimal
             pop rax
             add rbx, 8
@@ -107,6 +111,7 @@ my_printf:
         case_octal:
             push rax
             mov rax, [rbx]
+            movsx rax, eax
             call print_octal
             pop rax
             add rbx, 8
@@ -116,6 +121,7 @@ my_printf:
         case_binary:
             push rax
             mov rax, [rbx]
+            movsx rax, eax
             call print_binary
             pop rax
             add rbx, 8
@@ -125,6 +131,7 @@ my_printf:
         case_string:
             push rax
             mov rax, [rbx]
+            movsx rax, eax
             call print_string
             pop rax
             add rbx, 8
