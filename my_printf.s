@@ -1,9 +1,3 @@
-;========================================================
-; nasm -f elf64 -l my_printf.lst my_printf.s
-; g++ -no-pie -o build -Wall -Wextra main.cpp my_printf.o
-; ./build
-;========================================================
-
 section .bss
     BUFFER_SIZE equ 128
     buffer resb BUFFER_SIZE
