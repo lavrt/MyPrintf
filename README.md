@@ -27,11 +27,6 @@ An analog of the standard `printf', created for educational purposes.
 
 ## Project launch
 ```
-nasm -f elf64 -l my_printf.lst my_printf.s
-```
-```
-g++ -no-pie -o build -Wall -Wextra main.cpp my_printf.o
-```
-```
-./build
+./build.sh
+./run
 ```
