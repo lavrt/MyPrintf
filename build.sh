@@ -1,5 +1,5 @@
 #!/bin/bash
 
-nasm -f elf64 -l my_printf.lst my_printf.s
+nasm -f elf64 -l ./src/my_printf.lst ./src/my_printf.s
 
-g++ -no-pie -o run -Wall -Wextra main.cpp my_printf.o
+g++ -no-pie -o run -Wall -Wextra -Iinclude ./src/main.cpp ./src/my_printf.o
