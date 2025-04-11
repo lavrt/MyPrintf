@@ -27,6 +27,8 @@ An analog of the standard `printf', created for educational purposes.
 
 ## Project launch
 ```
+git clone https://github.com/lavrt/MyPrintf
+cd MyPrintf
 ./build.sh
 ./run
 ```
