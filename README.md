@@ -2,14 +2,18 @@
 
 `MyPrintf` is an educational project that implements a simplified version of the `printf` function in **x86-64 Assembly (NASM)** with a small **C++ test program**. The project demonstrates low-level formatted output, variadic arguments handling, number-to-string conversion, and interaction between Assembly and C++.
 
+---
+
 ## Overview
 
 The goal of this project is to practice writing programs in assembly language, as well as to better understand how formatted output works internally by building a custom `printf`-like function from scratch.
 
 The core function is written in Assembly, while C++ is used to call and test it. The repository contains:
-- ```my_printf.asm``` - an Assembly implementation of the printing function
-- ```my_printf.hpp``` - a C header for integration
-- ```main.cpp``` - a C example program
+- `my_printf.asm` - an assembly implementation of the printing function
+- `my_printf.hpp` - a header for integration
+- `main.cpp` - an example program
+
+---
 
 ## Supported format specifiers
 
@@ -21,6 +25,8 @@ The custom function supports:
 - `%o` — octal integer
 - `%b` — binary integer
 - `%%` — escaped percent sign
+
+---
 
 ## Project structure
 
@@ -36,15 +42,19 @@ MyPrintf/
 └── README.md
 ```
 
+---
+
 ## Function interface
-The function is declared in ```include/my_printf.hpp```:
+The function is declared in `include/my_printf.hpp`:
 ```cpp
 extern "C" int my_printf_t(const char* format, ...);
 ```
 
+---
+
 ## Example
 
-Example usage from ```main.cpp```:
+Example usage from `main.cpp`:
 
 ```cpp
 my_printf_t(
@@ -59,7 +69,9 @@ my_printf_t(
 );
 ```
 
-The test program also includes an additional examples to demonstrate multiple specifiers in one call.
+The test program also includes additional examples to demonstrate multiple specifiers in one call.
+
+---
 
 ## Build and run
 
@@ -82,3 +94,9 @@ cmake --build build -j
 ```bash
 ./build/run
 ```
+
+---
+
+## Limitations
+
+This project is intended for learning purposes and does not aim to fully reproduce the standard C printf. It currently supports only a small subset of format specifiers and does not implement advanced formatting features such as width, precision, flags, or floating-point output.
