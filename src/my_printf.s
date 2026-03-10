@@ -25,6 +25,8 @@ section .text
 
 global my_printf_t
 my_printf_t:
+    push rbx
+
     push r9
     push r8
     push rcx
@@ -36,6 +38,7 @@ my_printf_t:
     return:
 
     add rsp, 8 * 6
+    pop rbx
     ret
 
 my_printf:
@@ -49,7 +52,7 @@ my_printf:
         add rdx, 8 * 6
         cmp rbx, rdx
         jne .skip
-        add rbx, 8
+        add rbx, 16
         .skip:
 
         movzx rdx, byte [rax]
