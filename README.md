@@ -1,6 +1,22 @@
-# Printf function
+# MyPrintf
 
-This is a learning project that has created an analog of the printf function in the C language.
+`MyPrintf` is an educational project that implements a simplified version of the C `printf` function in **x86-64 Assembly (NASM)** with a small **C test program**. The project demonstrates low-level formatted output, variadic arguments handling, number-to-string conversion, and interaction between Assembly and C.
+
+## Overview
+
+The goal of this project is to practice writing programs in assembly language, as well as to better understand how formatted output works internally by building a custom `printf`-like function from scratch.
+
+The core function is written in Assembly, while C is used to call and test it. The repository contains:
+- ```my_printf.s``` - an Assembly implementation of the printing function
+- ```my_printf.h```a C header for integration
+- ```main.c``` a C example program,
+- and a simple build script.
+
+
+
+
+
+
 
 ## Features
 - **text output**
