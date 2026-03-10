@@ -1,6 +1,6 @@
 #include "my_printf.hpp"
 
-#include <stdio.h>
+#include <cstdio>
 
 int main() {
     printf(
