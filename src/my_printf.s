@@ -4,7 +4,7 @@ section .bss
     index resb 1
 
 section .data 
-    chars db "0123456789ABCDEF"
+    chars db "0123456789abcdef"
 
     jump_table:
     ;_____________________________________________
@@ -94,8 +94,7 @@ my_printf:
             jmp main_loop
         case_hexadecimal:
             push rax
-            mov rax, [rbx]
-            movsx rax, eax
+            mov eax, [rbx]
             call print_hexadecimal
             pop rax
             add rbx, 8
@@ -104,8 +103,7 @@ my_printf:
             jmp main_loop
         case_octal:
             push rax
-            mov rax, [rbx]
-            movsx rax, eax
+            mov eax, [rbx]
             call print_octal
             pop rax
             add rbx, 8
@@ -114,8 +112,7 @@ my_printf:
             jmp main_loop
         case_binary:
             push rax
-            mov rax, [rbx]
-            movsx rax, eax
+            mov eax, [rbx]
             call print_binary
             pop rax
             add rbx, 8
